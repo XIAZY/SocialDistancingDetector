@@ -56,27 +56,27 @@ class Detector:
 
     return zip(classes, confs, boxes)
 
-def draw_boxes(img, detected):
-  for class_name, conf, box in detected:
-    if class_name == 'person':
-      left, top, w, h = box
-      cv.rectangle(img, (left, top), (left + w, top + h), (255, 0, 0), 1)
+def draw_boxes(img, persons):
+  for person in persons:
+    left, top, w, h = person[2]
+    cv.rectangle(img, (left, top), (left + w, top + h), (255, 0, 0), 1)
 
   cv.imshow('boxes', img)
   cv.waitKey()
 
-
-def main():
+def get_persons(img):
   detector = Detector()
-
   detector.init_model('yolo/yolov3.cfg', 'yolo/yolov3.weights')
   detector.load_classes('yolo/coco.names')
-
-  img = cv.imread('images/younge.jpg')
-
   detected = detector.detect(img, 0.5, 0.5)
 
-  draw_boxes(img, detected)
+  return filter(lambda obj: obj[0]=='person', detected)
+
+def main():
+  img = cv.imread('images/younge.jpg')
+
+  persons = get_persons(img)
+  draw_boxes(img, persons)
 
 if __name__ == '__main__':
   main()
