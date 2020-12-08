@@ -76,7 +76,7 @@ def get_persons(img):
     detector.load_classes('yolo/coco.names')
     detected = detector.detect(img, 0.5, 0.5)
 
-    return filter(lambda obj: obj[0] == 'person', detected)
+    return list(filter(lambda obj: obj[0] == 'person', detected))
 
 
 def main():
