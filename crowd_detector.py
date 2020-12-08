@@ -5,7 +5,6 @@ import numpy as np
 def get_violators(persons):
     violators = set()
     n = len(persons)
-    avg_h = np.mean([p[2][3] for p in persons])
     for i in range(n):
         for j in range(i+1, n):
             person = [ persons[i], persons[j] ]
@@ -25,13 +24,10 @@ def get_violators(persons):
                       (top[1]+h[1]//2, left[1]+w[1]//2)]
             euc_dist = np.sqrt(
                 (center[1][0]-center[0][0])**2 + (center[1][1]-center[0][1])**2)
-            # print(euc_dist)
             inv_dist = euc_dist / (sum(h)/2)
-            # inv_dist = euc_dist / avg_h
             prod = inv_dist / p
             print(prod)
             if prod < 1.11:
-                # print(euc_dist, inv_dist, prod)
                 violators.add(i)
                 violators.add(j)
     
