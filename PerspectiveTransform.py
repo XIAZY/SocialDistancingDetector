@@ -84,29 +84,39 @@ def reasonable_size(img):
 
     return cv.resize(img, option1) if option1[1] < option2[0] else cv.resize(img, option2)
 
+class Transformer:
+    def calibrate(self, img):
+        ctypes.windll.user32.MessageBoxW(0, "please draw four points that would look like a square from bird\'s-eye view'", "prompt", 0)
+        point_input = PointInput()
+        square, _ = point_input.n_points(4, img)
+
+        ctypes.windll.user32.MessageBoxW(0, "please draw two points six feet apart'", "prompt", 0)
+        self.sixfeet, _ = point_input.n_points(2, img)
+
+        self.M, self.s = birdseye_matrix(square, img)
+
+    def get_processed_image(self, detector, img):
+        M, s, sixfeet = self.M, self.s, self.sixfeet
+
+        transformed_img = cv.warpPerspective(img, M, s)
+
+        persons = detector.get_persons(img)
+        transformed_persons = transform_persons(persons, M)
+
+        violators, good_citizens = get_violators(transformed_persons, M, sixfeet)
+
+        draw_circles(violators, transformed_img, (0, 0, 255))
+        draw_circles(good_citizens, transformed_img, (0, 255, 0))
+
+        return reasonable_size(transformed_img)
+
 if __name__ == '__main__':
     img = cv.imread('images/street.png')
 
-    detector = default_dedector()
-    persons = detector.get_persons(img)
+    transformer = Transformer()
+    transformer.calibrate(img)
 
-    ctypes.windll.user32.MessageBoxW(0, "please draw four points that would look like a square from bird\'s-eye view'", "prompt", 0)
-    point_input = PointInput()
-    square, _ = point_input.n_points(4, img)
-
-    ctypes.windll.user32.MessageBoxW(0, "please draw two points six feet apart'", "prompt", 0)
-    sixfeet, _ = point_input.n_points(2, img)
-
-    M, s = birdseye_matrix(square, img)
-
-    transformed_img = cv.warpPerspective(img, M, s)
-    transformed_persons = transform_persons(persons, M)
-
-    violators, good_citizens = get_violators(transformed_persons, M, sixfeet)
-    draw_circles(violators, transformed_img, (0, 0, 255))
-    draw_circles(good_citizens, transformed_img, (0, 255, 0))
-
-    transformed_img = reasonable_size(transformed_img)
+    transformed_img = transformer.get_processed_image(default_dedector(), img)
 
     cv.imshow("transformed", transformed_img)
     cv.waitKey()
