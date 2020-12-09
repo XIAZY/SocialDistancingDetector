@@ -59,7 +59,11 @@ class Detector:
         boxes = [boxes[i] for i in nms_indices]
 
         return zip(classes, confs, boxes)
+    
+    def get_persons(self, img):
+        detected = self.detect(img, 0.5, 0.5)
 
+        return list(filter(lambda obj: obj[0] == 'person', detected))
 
 def draw_boxes(img, persons):
     for person in persons:
@@ -70,13 +74,12 @@ def draw_boxes(img, persons):
     cv.waitKey()
 
 
-def get_persons(img):
+def default_dedector():
     detector = Detector()
     detector.init_model('yolo/yolov3.cfg', 'yolo/yolov3.weights')
     detector.load_classes('yolo/coco.names')
-    detected = detector.detect(img, 0.5, 0.5)
 
-    return list(filter(lambda obj: obj[0] == 'person', detected))
+    return detector
 
 
 def main():

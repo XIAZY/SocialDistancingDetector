@@ -1,4 +1,4 @@
-from detection import get_persons, draw_boxes
+from detection import default_dedector, draw_boxes
 import cv2
 import numpy as np
 
@@ -26,7 +26,7 @@ def get_violators(persons):
                 (center[1][0]-center[0][0])**2 + (center[1][1]-center[0][1])**2)
             inv_dist = euc_dist / (sum(h)/2)
             prod = inv_dist / p
-            print(prod)
+
             if prod < 1.11:
                 violators.add(i)
                 violators.add(j)
@@ -37,6 +37,7 @@ def get_violators(persons):
 if __name__ == '__main__':
     img = cv2.imread('images/street.png')
 
-    persons = get_persons(img)
+    detector = default_dedector()
+    persons = detector.get_persons(img)
     violators = get_violators(persons)
     draw_boxes(img, violators)

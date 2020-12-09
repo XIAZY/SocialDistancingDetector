@@ -2,7 +2,7 @@ import numpy as np
 import cv2 as cv
 import matplotlib.pyplot as plt
 import configparser
-from detection import get_persons, draw_boxes
+from detection import default_dedector, draw_boxes
 
 def birdseye(pts, img):
     """
@@ -28,7 +28,8 @@ def birdseye(pts, img):
 def location(pts, img):
 
     M, transformedImg = birdseye(pts, img)
-    persons = get_persons(img)
+    detector = default_dedector()
+    persons = detector.get_persons(img)
     
     # dimensions of the trapzoid. Not done yet, just took the box created by
     # the shorter ends.
