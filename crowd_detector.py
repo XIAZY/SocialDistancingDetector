@@ -18,7 +18,7 @@ def get_violators(persons):
             h = [h_i, h_j]
             
             a = [w[0] * h[0], w[1] * h[1]]
-            p = (min(a)/max(a))
+            p = (min(h)/max(h))
 
             center = [(top[0]+h[0]//2, left[0]+w[0]//2),
                       (top[1]+h[1]//2, left[1]+w[1]//2)]
