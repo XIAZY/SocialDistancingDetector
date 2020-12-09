@@ -4,9 +4,6 @@ import cv2 as cv
 # adapted from https://docs.opencv.org/master/db/d5b/tutorial_py_mouse_handling.html
 
 class Box:
-  def __init__(self):
-    self.points = []
-
   def draw_circle(self, event, x, y, flags, param):
       if event == cv.EVENT_LBUTTONDBLCLK:
         self.points.append((x, y))
@@ -14,6 +11,7 @@ class Box:
 
   def box(self, img):
     # return four points drawn by the user, along with the modified image
+    self.points = []
 
     cv.namedWindow('image')
     cv.setMouseCallback('image', self.draw_circle)
