@@ -33,6 +33,11 @@ def get_violators(persons):
     
     return [persons[i] for i in violators]
 
+def get_processed_img(detector, img):
+    persons = detector.get_persons(img)
+    violators = get_violators(persons)
+    img = draw_boxes(img, violators)
+    return img
 
 if __name__ == '__main__':
     img = cv2.imread('images/street.png')
@@ -40,4 +45,6 @@ if __name__ == '__main__':
     detector = default_dedector()
     persons = detector.get_persons(img)
     violators = get_violators(persons)
-    draw_boxes(img, violators)
+    img = draw_boxes(img, violators)
+    cv2.imshow('boxes', img)
+    cv2.waitKey()

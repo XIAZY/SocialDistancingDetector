@@ -70,8 +70,9 @@ def draw_boxes(img, persons):
         left, top, w, h = person[2]
         cv.rectangle(img, (left, top), (left + w, top + h), (255, 0, 0), 1)
 
-    cv.imshow('boxes', img)
-    cv.waitKey()
+    # cv.imshow('boxes', img)
+    # cv.waitKey()
+    return img
 
 
 def default_dedector():
