@@ -1,61 +1,61 @@
 import numpy as np
 import cv2 as cv
-import matplotlib.pyplot as plt
-import configparser
-from detection import default_dedector, draw_boxes
 
-def birdseye(pts, img):
-    """
-    point orientation goes in order of bottom left, bottom right, top left, top right
-    """
+from detection import default_dedector, draw_boxes
+from box import Box
+
+def birdseye_matrix(pts, img):
+    def boxsort(points):
+        top2bottom = sorted(points, key=lambda x: x[1])
+        tltr = sorted(top2bottom[:2], key=lambda x: x[0])
+        blbr = sorted(top2bottom[2:], key=lambda x: x[0])
+
+        return blbr + tltr
+    
+    pts = np.float32(boxsort(pts))
+
     length = img.shape[0]
     width = img.shape[1]
     
     new = np.float32([[0, length], [width, length], [0, 0], [width, 0]])
     
-    M = cv.getPerspectiveTransform(pts, new)
-    
-    newImg = cv.warpPerspective(img, M, (width, length))
-    
-    plt.figure(figsize=(10,10))
-    
-    plt.imshow(cv.cvtColor(newImg, cv.COLOR_BGR2RGB))
-    plt.show()
-    
-    return M, newImg
+    return cv.getPerspectiveTransform(pts, new)
 
+def transform_img(M, img):
+    return cv.warpPerspective(img, M, (img.shape[1], img.shape[0]))
 
-def location(pts, img):
+def transform_persons(M, persons):
+    centers = []
 
-    M, transformedImg = birdseye(pts, img)
-    detector = default_dedector()
-    persons = detector.get_persons(img)
-    
-    # dimensions of the trapzoid. Not done yet, just took the box created by
-    # the shorter ends.
-    maxH = pts[0][1]
-    minH = pts[2][1]
-    minL = pts[2][0]
-    maxL = pts[3][0]
-    
-
-    #find the center of person
-    center = []
     for person in persons:
         left, top, w, h = person[2]
-        pt = [left + w/2, top + h/2]
-     
-        #test for now
-        if pt[0] > 100 and pt[0] < 900 and pt[1] > 400:
-            center.append(pt)
+        centers.append([left + w/2, top + h/2])
     
-    center = np.array(center)
-    transformedCenter = np.float32(center).reshape(-1, 1, 2)
-    transformedCenter = cv.perspectiveTransform(transformedCenter, M)
+    centers = np.array(centers)
+    centers = np.float32(centers).reshape(-1, 1, 2)
+
+    return cv.perspectiveTransform(centers, M).reshape(-1, 2)
+
+def draw_circles(centers, img):
+    for center in centers:
+        x, y = center
+        cv.circle(img, (x, y), 10, (0, 255, 0), -1)
+
+if __name__ == '__main__':
+    img = cv.imread('images/street.png')
+
+    detector = default_dedector()
+    persons = detector.get_persons(img)
+
+    box = Box()
+    points, mod = box.box(img)
+
+    M = birdseye_matrix(points, img)
+
+    transformed_img = transform_img(M, img)
+    transformed_persons = transform_persons(M, persons)
     
-    transformedPoints = []
-    for i in range(0, transformedCenter.shape[0]):
-        transformedPoints.append([transformedCenter[i][0][0], transformedCenter[i][0][1]])
-    transformedPoints = np.array(transformedPoints)
-    
-    return transformedPoints
+    draw_circles(transformed_persons, transformed_img)
+    cv.imshow("transformed", transformed_img)
+
+    cv.waitKey()
