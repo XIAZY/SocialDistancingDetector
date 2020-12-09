@@ -12,6 +12,8 @@ class Box:
   def box(self, img):
     # return four points drawn by the user, along with the modified image
 
+    print('please draw four points that would look like a square from birdseye view')
+
     self.points = []
     self.img = img.copy()
     
