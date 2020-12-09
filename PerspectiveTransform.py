@@ -1,7 +1,4 @@
-Python 3.8.3 (v3.8.3:6f8c8320e9, May 13 2020, 16:29:34) 
-[Clang 6.0 (clang-600.0.57)] on darwin
-Type "help", "copyright", "credits" or "license()" for more information.
->>> import numpy as np
+import numpy as np
 import cv2 as cv
 import matplotlib.pyplot as plt
 import configparser
@@ -46,7 +43,7 @@ def location(pts, img):
     for person in persons:
         left, top, w, h = person[2]
         pt = [left + w/2, top + h/2]
-        print(pt)
+     
         #test for now
         if pt[0] > 100 and pt[0] < 900 and pt[1] > 400:
             center.append(pt)
